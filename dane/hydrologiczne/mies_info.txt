@@ -1,0 +1,24 @@
+
+Kod stacji
+Nazwa stacji
+Nazwa rzeki/jeziora
+Rok hydrologiczny
+WskaŸnik miesi¹ca w roku hydrologicznym
+WskaŸnik ekstremum
+Stan wody [cm]
+Przep³yw [m^3/s]
+Temperatura wody [st. C]
+Miesi¹c kalendarzowy
+
+
+WskaŸnik ekstremum mo¿e przyjmowaæ nastêpuj¹ce wartoœci:
+1 - minimum,
+2 - wartoœæ œrednia,
+3 - maksimum.
+
+
+
+Stan wody 9999 oznacza brak danych w bazie lub przerwy w obserwacjach w danym miesi¹cu i st¹d brak mo¿liwoœci obliczenia charakterystyk.
+Przep³yw 99999.999 oznacza brak danych lub przerwy w obserwacjach w danym miesi¹cu i st¹d brak mo¿liwoœci obliczenia charakterystyk.
+Temperatura wody 99.9 oznacza brak danych lub przerwy w obserwacjach w danym miesi¹cu i st¹d brak mo¿liwoœci obliczenia charakterystyk.
+
