@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loaded Data</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            justify-content: flex-start;
+            position: relative;
+        }
+
+        .background-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .background-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), url('/static/images/zbiornik_retencyjny.jpg') no-repeat center center fixed; /* Updated image URL */
+            background-size: cover;
+        }
+        
+        h1 {
+            color: #fff; /* White text for higher contrast */
+            text-align: center;
+            margin-top: 50px; /* Adjust as needed */
+            font-size: 3em; /* Adjust the font size as needed */
+        }
+
+        .home-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: #4CAF50;
+            color: #fff;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none; /* Remove default underline for anchor tags */
+            transition: background-color 0.3s ease; /* Smooth transition effect */
+        }
+
+        .home-button:hover {
+            background-color: #45a049; /* Change the color on hover */
+        }
+
+        .table-title {
+            color: #fff;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.5em;
+        }
+
+        .last-refresh {
+            color: #fff;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        table {
+            width: 80%;
+            margin-top: 10px;
+            border-collapse: collapse;
+            overflow-x: auto;
+            color: #fff;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            background-color: #888; /* Gray background color */
+        }
+
+        th {
+            background-color: #333;
+        }
+
+        tbody {
+            background-color: rgba(255, 255, 255, 0.25); /* Slightly decreased opacity */
+        }
+
+        .button {
+            margin-top: 20px;
+            padding: 10px 15px;
+            background-color: #4CAF50; /* Same color as home button */
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        .button:hover {
+            background-color: #45a049; /* Change the color on hover */
+        }
+    </style>
+</head>
+<body>
+    <div class="background-container"></div>
+    <a href="{{ url_for('home_screen') }}" class="home-button">Home</a>
+    <h1>Wybór miejsca budowy zbiornika retencyjnego</h1>
+    
+    <p class="table-title">Optimisation Data</p>
+
+    {% for table in table_html %}
+        {{ table | safe }}
+    {% endfor %}
+
+    <div style="display: flex; justify-content: space-between; margin-top: 20px; width: 20%;">
+        <button class="button">TOPSIS</button>
+        <button class="button">ABC</button>
+    </div>
+
+</body>
+</html>
