@@ -1,16 +1,24 @@
 import pandas as pd
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, request
 import numpy as np
+from tkinter import filedialog, Tk
+
 
 app = Flask(__name__)
 
-@app.route("/data", methods=("POST", "GET"))
-def load_data():
+@app.route("/show_data", methods=("POST", "GET"))
+def show_data():
+    f = request.files['file']
+    try:
+        df = pd.read_csv(f)
+        df.columns.values[0] = 'ID'
+    except:
+        df = pd.DataFrame()
+    return render_template("show_data.html", table_html=[df.to_html(classes='data', header='true', index=False)])
 
-    # TODO: import danych i wybór kryteriów
-    # df = load_dataframe()
-    df = pd.DataFrame()
-    return render_template("data.html", table_html=[df.to_html(classes='data', header='true')])
+@app.route("/load_data", methods=("POST", "GET"))
+def load_data():
+    return render_template("load_data.html")
 
 @app.route("/", methods=("POST", "GET"))
 def home_screen():

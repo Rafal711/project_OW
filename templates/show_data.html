@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loaded Data</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/show_data_styles.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/common.css') }}">
+</head>
+<body>
+    <div class="background-container-darker"></div>
+
+    <div class="button-container">
+        <a href="{{ url_for('home_screen') }}" class="button">Strona główna</a>
+        <a href="{{ url_for('load_data') }}" class="button">Powrót</a>
+    </div>
+
+    <h1>Wybór miejsca budowy zbiornika retencyjnego</h1>
+    
+    <p class="table-title">Alternatywy</p>
+
+    <div class="table-container">
+        <table>
+            <tbody>
+                <tr>
+                    {% for table in table_html %}
+                    {{ table | safe }}
+                    {% endfor %}
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; margin-top: 20px; width: 20%;">
+        <button class="button">TOPSIS</button>
+        <button class="button">ABC</button>
+    </div>
+
+</body>
+</html>

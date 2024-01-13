@@ -4,16 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wybór miejsca budowy zbiornika retencyjnego</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/home_styles.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/load_data_styles.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/common.css') }}">
 </head>
 <body>
     <div class="background-container"></div>
+    <div class="button-container">
+        <a href="{{ url_for('home_screen') }}" class="button">Strona główna</a>
+    </div>
     <header>
         <h1>Wybór miejsca budowy zbiornika retencyjnego</h1>
     </header>
     <section>
-        <a href="{{ url_for('load_data') }}"><button>Rozpocznij</button></a>
+        <p>Wczytaj dane</p>
+        <form action="/show_data" method="post" enctype="multipart/form-data">   
+            <input type="file" name="file" value="Wybierz plik"/>   
+            <input type="submit" value="Wczytaj">   
+        </form>  
         <!-- Additional content can be added here -->
     </section>
 </body>
