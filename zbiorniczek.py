@@ -16,6 +16,7 @@ class slipperyZbiorniczek:
         self.weights = [1, 1, 1, 1, 1, 0] # dla dataset2: [1, 1, 1, 1, 1, 0], dataset1: [1, 1, 1, 1, 0, 1]
         self.loaded_data = pd.DataFrame()
         self.data_to_calculate = pd.DataFrame()
+        self.fuzzy_rest = None
 
 
     def load_data_from_file(self, path, idx_col):
@@ -90,8 +91,9 @@ class slipperyZbiorniczek:
         #print(len(undominated_A3))
         rest = [el for el in data_list if el not in undominated_A0.tolist()]
         rest = [el for el in rest if el not in undominated_A3.tolist()]
+        self.fuzzy_rest = rest
         # rest = [el for el in rest if el not in undominated_A1]
-        print("Rest1: ", rest, len(rest))
+        #print("Rest1: ", rest, len(rest))
         
 
         self.criterions['Kierunek'] = -(self.criterions['Kierunek'] - 1)
@@ -154,7 +156,7 @@ class slipperyZbiorniczek:
         
     def run_fuzzy_topsis(self):
         data_to_cal = self.undominated_sets()
-        fuz_topsis = FUZZY_TOPSIS(data_to_cal, self.criterions_param_list, self.weights)
+        fuz_topsis = FUZZY_TOPSIS(data_to_cal, self.criterions_param_list, self.weights, self.fuzzy_rest)
         fuz_topsis_ranking = fuz_topsis.run()
         #print(fuz_topsis_ranking[0], len(fuz_topsis_ranking[0]))
         ranking_list = []
@@ -172,9 +174,15 @@ class slipperyZbiorniczek:
         values_to_find = np.array(fuzzy_input[1])
 
         id = np.argwhere(np.isin(matrix_to_search, values_to_find).all(axis=1)) 
-        #print("id:", id)
-
+        
+        #print("LENGTH", len(id.flatten()))
+        print(id)
+        #print("LENGTH", len(fuzzy_input[0]))
+        if len(id.flatten()) > len(fuzzy_input[0]):
+            id = id.flatten()
+            id = id[:-1]
         df_= self.loaded_data.iloc[id.flatten()]
+        #print("LENGTH", df_.shape)
         #print(df_.to_string())
         df_ = df_.drop(df_.columns[0], axis=1)
         df_ = df_.reset_index()
@@ -200,7 +208,7 @@ class slipperyZbiorniczek:
 
         if name == "Fuzzy":
            scoring_list = self.run_fuzzy_topsis()
-           print("SCORINGS LENGTH: ", len(scoring_list[0]), len(scoring_list[1]))
+           #print("SCORINGS LENGTH: ", len(scoring_list[0]), len(scoring_list[1]))
            df_out = self.fuzzy_output(scoring_list)
            return df_out
         elif name == "Topsis":
@@ -216,6 +224,6 @@ class slipperyZbiorniczek:
 
 if __name__ == "__main__":
     masnyZbiornik = slipperyZbiorniczek()
-    df = masnyZbiornik.run_algorithm("Fuzzy", "dataset2.csv")
+    df = masnyZbiornik.run_algorithm("Fuzzy", "dataset1.csv")
     print("Output:", df.to_string())
     

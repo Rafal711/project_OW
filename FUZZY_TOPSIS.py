@@ -5,7 +5,7 @@ from copy import deepcopy
 from math import inf
 # dwa razy metoda naiwana. Z parametryzacją dla kryteriów: cały zbiór (max/min normalnie, max/min odwrócone dla tego samego zbioru i puścimy jeszcze raz dla reszty to samo i wybierzemy A0 i A1).
 class FUZZY_TOPSIS:
-    def __init__(self, generated_data, criterions, weights) -> None:
+    def __init__(self, generated_data, criterions, weights, fuzzy_rest) -> None:
         self.generated_data = generated_data
         self.A0 = self.generated_data[0]
         self.A1 = self.generated_data[1]
@@ -13,6 +13,7 @@ class FUZZY_TOPSIS:
         self.weights = np.array(weights)
         self.matrix = np.array(self.generated_data[2])
         self.criterionsList = criterions
+        self.fuzzy_rest_val = np.array(fuzzy_rest)
 
     # def criterionsDfToList(self):
     #     numOfCriterions = self.criterions.shape[0]
@@ -37,10 +38,10 @@ class FUZZY_TOPSIS:
         return self.matrix * self.weights
     
     def getMin(self):
-        return self.A1.min(0)
+        return self.matrix.min(0)
 
     def getMax(self):
-        return self.A0.max(0)
+        return self.matrix.max(0)
 
     def getDig(self, matMin):
         matrix = deepcopy(self.matrix)
