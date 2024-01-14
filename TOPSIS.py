@@ -5,17 +5,17 @@ from copy import deepcopy
 from math import inf
 
 class TOPSIS:
-    def __init__(self, generated_data, criterions, weights) -> None:
+    def __init__(self, generated_data, criterions_list, weights) -> None:
         self.generated_data = generated_data
-        self.criterions = criterions
+        # self.criterions = criterions
         self.weights = np.array(weights)
         self.matrix = generated_data.to_numpy()
-        self.criterionsList = []
+        self.criterionsList = criterions_list
 
-    def criterionsDfToList(self):
-        numOfCriterions = self.criterions.shape[0]
-        self.criterionsList = [1 if self.criterions.loc[i].Kierunek == 'Max' else 0 for i in range(numOfCriterions)]
-        return self.criterionsList
+    # def criterionsDfToList(self):
+    #     numOfCriterions = self.criterions.shape[0]
+    #     self.criterionsList = [1 if self.criterions.loc[i].Kierunek == 'Max' else 0 for i in range(numOfCriterions)]
+    #     return self.criterionsList
 
     def normalize(self):
         self.matrix = self.matrix / ((self.matrix ** 2).sum(axis=0)) ** (1/2)
@@ -72,7 +72,7 @@ class TOPSIS:
         return {"MIN": min_, "MAX": max_}
 
     def topsis(self, generated_data, criterions, weights):
-        self.criterionsDfToList()
+        # self.criterionsDfToList()
         matrix = self.normalize()
         matrix = self.applyWeights()
         matrix = self.applyMaxim()
@@ -81,8 +81,11 @@ class TOPSIS:
         did = self.getDid(max_)
         dig = self.getDig(min_)
         ci = self.getCi(dig, did)
+        print(ci)
         rank = self.sortRes(ci)
         self.printRank(rank)
+        return rank, ci
 
     def run(self):
-        self.topsis(self.generated_data, self.criterions, self.weights)
+        rank = self.topsis(self.generated_data, self.criterionsList, self.weights)
+        return rank
