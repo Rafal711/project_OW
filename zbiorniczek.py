@@ -73,7 +73,7 @@ class slipperyZbiorniczek:
                 X[i] = None
         # p_nz = list(dict.fromkeys(p))
         # print(p)
-        return p, del_elem, not_comparable, compare_counter
+        return np.array(p), del_elem, not_comparable, compare_counter
     
 
     def naive_owd_with_optimal_point(self, data_list):
@@ -90,23 +90,25 @@ class slipperyZbiorniczek:
 
         if len(X.shape) != 1:
             for col in range(X.shape[1]):
-                minArray.append(np.min(X[:, col]))
-                # if self.criterions_param_list[col]:
-                #     minArray.append(np.max(X[:, col]))
-                # else:
-                #     minArray.append(np.min(X[:, col]))
+                # minArray.append(np.min(X[:, col]))
+                if self.criterions_param_list[col]:
+                    minArray.append(np.max(X[:, col]))
+                else:
+                    minArray.append(np.min(X[:, col]))
         else:
-            # if self.criterions[0]: 
-            #     minArray.append(np.max(X))
-            # else:
-            #     minArray.append(np.min(X))
-            minArray.append(np.min(X))
+            if self.criterions[0]: 
+                minArray.append(np.max(X))
+            else:
+                minArray.append(np.min(X))
+            # minArray.append(np.min(X))
 
         distances = [dist(minArray, X[id]) for id in indexes]
 
         sortedDistances = [(x, id) for x, id, _ in sorted(zip(distances, indexes, X))]
-
+        print("BEFORE WILE LOOP")
         while m <= M:
+            print("IN WHILE LOOP M:", M)
+            print("m: ", m)
             for i in range(X.shape[0]):
 
                 isNotInNoneElements_1 = True
@@ -142,22 +144,21 @@ class slipperyZbiorniczek:
     
 
 
-    # def is_domi(self, p1, p2):
-    #     for i in range(len(p1)):
-    #         if self.criterions.loc[i].Kierunek == 0:
-    #             if p1[i] <= p2[i]:
-    #                 continue # compare_tab[i] = True
-    #             else:
-    #                 return False # compare_tab[i] = False
-    #         elif self.criterions.loc[i].Kierunek == 1:
-    #             if p1[i] >= p2[i]:
-    #                 continue # compare_tab[i] = True
-    #             else:
-    #                 return False # compare_tab[i] = False
-    #     return True
+    def is_domi(self, p1, p2):
+        for i in range(len(p1)):
+            if self.criterions.loc[i].Kierunek == 0:
+                if p1[i] <= p2[i]:
+                    continue # compare_tab[i] = True
+                else:
+                    return False # compare_tab[i] = False
+            elif self.criterions.loc[i].Kierunek == 1:
+                if p1[i] >= p2[i]:
+                    continue # compare_tab[i] = True
+                else:
+                    return False # compare_tab[i] = False
+        return True
 
-
-    def is_domi(self, x, y):
+    def is_domiTOP(self, x, y):
         """
         funkcja sprawdzająca czy dany punkt dominuje drugi
         :param x: pkt 1
@@ -181,6 +182,18 @@ class slipperyZbiorniczek:
             return y  # punkt y większy
         else:
             return None  # punkty nieporównywalne
+        
+    def is_gr_gra(self, gra, sma):
+        """
+        funkcja sprawdzająca czy jeden zbiór dominuje drugi
+        :param gra: zbiór potencjalnie większy
+        :param sma: zbiór potencjalnie mniejszy
+        """
+        for g in gra:
+            for s in sma:
+                res = self.is_domiTOP(gra[g], sma[s]) # trzeba w niej uwzględnić parametry dla kryteriów czy max czy min. Nie robimy tego tutaj ...
+                if res != gra[g]:
+                    raise ValueError(f"Grupy nie są dobrze zdominowane: {g} < {s}")
 
     def get_rest(self, b, niezdom_dod, niezdom_uj):
         return {key: val for key, val in b.items() if key not in niezdom_dod and key not in niezdom_uj}
@@ -228,8 +241,8 @@ class slipperyZbiorniczek:
         """
         for g in gra:
             for s in sma:
-                res = self.is_domi(gra[g], sma[s])
-                if res != gra[g]:
+                res = self.is_domi(g, s)
+                if not np.all(res == g):
                     raise ValueError(f"Grupy nie są dobrze zdominowane: {g} < {s}")
 
 
@@ -259,39 +272,37 @@ class slipperyZbiorniczek:
 
     def undominated_sets(self):
         data_list = self.data_to_calculate.to_numpy(copy=True).tolist()
-        undominated_A0, domi, comp_count = self.naive_owd_with_optimal_point(data_list)
+        undominated_A0, domi, not_comparable, compare_counter = self.naive_owd(data_list)
         print(undominated_A0)
         print(len(undominated_A0))
         self.criterions['Kierunek'] = -(self.criterions['Kierunek'] - 1)
-        undominated_A1, domi, comp_count = self.naive_owd_with_optimal_point(data_list)
-        print(undominated_A1)
-        print(len(undominated_A1))
+        undominated_A3, domi, not_comparable, compare_counter  = self.naive_owd(data_list)
+        print(undominated_A3)
+        print(len(undominated_A3))
         rest = [el for el in data_list if el not in undominated_A0.tolist()]
-        rest = [el for el in rest if el not in undominated_A1.tolist()]
+        rest = [el for el in rest if el not in undominated_A3.tolist()]
         # rest = [el for el in rest if el not in undominated_A1]
         print("Rest1: ", rest, len(rest))
         
 
         self.criterions['Kierunek'] = -(self.criterions['Kierunek'] - 1)
-        undominated_A2, domi, comp_count = self.naive_owd_with_optimal_point(rest)
+        undominated_A1, domi, not_comparable, compare_counter  = self.naive_owd(rest)
+        print(undominated_A1)
+        print(len(undominated_A1))
+        self.criterions['Kierunek'] = -(self.criterions['Kierunek'] - 1)
+        undominated_A2, domi, not_comparable, compare_counter = self.naive_owd(rest)
         print(undominated_A2)
         print(len(undominated_A2))
         self.criterions['Kierunek'] = -(self.criterions['Kierunek'] - 1)
-        undominated_A3, domi, comp_count = self.naive_owd_with_optimal_point(rest)
-        print(undominated_A3)
-        print(len(undominated_A3))
-        self.criterions['Kierunek'] = -(self.criterions['Kierunek'] - 1)
 
+        rest = [el for el in rest if el not in undominated_A1.tolist()]
         rest = [el for el in rest if el not in undominated_A2.tolist()]
-        rest = [el for el in rest if el not in undominated_A3.tolist()]
 
         print("Rest2: ", rest, len(rest))
-        rest = np.array(rest)
-        for col in range(rest.shape[1]):
-            if col < 3:
-                print(np.max(rest[:, col]))
-            else:
-                print(np.min(rest[:, col]))
+
+        return undominated_A0, undominated_A1, rest
+    
+        
 
         # data_dict = deepcopy(data_list)
         # data_name = [f'S{i}' for i in range(len(data_dict))]
@@ -354,13 +365,14 @@ class slipperyZbiorniczek:
 
 if __name__ == "__main__":
     masnyZbiornik = slipperyZbiorniczek()
-    masnyZbiornik.load_data_from_file('dataset2.csv')
-    print(masnyZbiornik.criterions.to_string())
-    # print(masnyZbiornik.data_to_calculate.to_string())
-    print(" ")
-    #scoring_list = masnyZbiornik.run_uta_star()
-    scoring_list = masnyZbiornik.run_topsis()
-    df = masnyZbiornik.scoring_do_dataframe_ranking(scoring_list)
-    print("Output:", df.to_string())
-    # masnyZbiornik.undominated_sets() 
+    masnyZbiornik.load_data_from_file('dataset1.csv')
+    masnyZbiornik.undominated_sets()
+    # print(masnyZbiornik.criterions.to_string())
+    # # print(masnyZbiornik.data_to_calculate.to_string())
+    # print(" ")
+    # scoring_list = masnyZbiornik.run_uta_star()
+    # scoring_list = masnyZbiornik.run_topsis()
+    # df = masnyZbiornik.scoring_do_dataframe_ranking(scoring_list)
+    # print("Output:", df.to_string())
+    # # masnyZbiornik.undominated_sets() 
     

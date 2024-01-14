@@ -7,9 +7,11 @@ from math import inf
 class TOPSIS:
     def __init__(self, generated_data, criterions, weights) -> None:
         self.generated_data = generated_data
+        self.A0 = self.generated_data[0]
+        self.A1 = self.generated_data[1]
         self.criterions = criterions
         self.weights = np.array(weights)
-        self.matrix = generated_data.to_numpy()
+        self.matrix = self.generated_data[2].numpy()
         self.criterionsList = []
 
     def criterionsDfToList(self):
@@ -35,10 +37,10 @@ class TOPSIS:
         return self.matrix * self.weights
     
     def getMin(self):
-        return self.matrix.min(0)
+        return self.A1.min(0)
 
     def getMax(self):
-        return self.matrix.max(0)
+        return self.A0.max(0)
 
     def getDig(self, matMin):
         matrix = deepcopy(self.matrix)
