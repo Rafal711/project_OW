@@ -3,8 +3,20 @@ from flask import Flask, jsonify, render_template, request
 import numpy as np
 from tkinter import filedialog, Tk
 
+import time
 
 app = Flask(__name__)
+def run_optimisation(method="TOPSIS"):
+    if (method == "TOPSIS"):
+        # df = get_topsis_results()
+        df = pd.DataFrame()
+    
+    return df
+
+@app.route("/results", methods=("POST", "GET"))
+def results():
+    df = run_optimisation()
+    return render_template("results.html", table_html=[df.to_html(classes='data', header='true', index=False)])
 
 @app.route("/show_data", methods=("POST", "GET"))
 def show_data():
