@@ -4,20 +4,22 @@ import pandas as pd
 from copy import deepcopy
 from math import inf
 from TOPSIS import TOPSIS
+from UTA_STAR import UTA_STAR
 
 
 class slipperyZbiorniczek:
     def __init__(self): 
         self.criterions = None # żeby odwrócić to odjąć -1 i pomnożyć przez -1
-        self.criterions_param_list = [1, 1, 1, 0, 0, 0]
+        self.criterions_param_list = [1, 1, 1, 0, 0, 0] # dla dataset2: [1, 1, 1, 0, 0, 0], dataset1: [1, 1, 1, 0, 1, 0]
         self.weights = [1] * len(self.criterions_param_list)
+        self.weights = [1, 1, 1, 1, 1, 0] # dla dataset2: [1, 1, 1, 1, 1, 0], dataset1: [1, 1, 1, 1, 0, 1]
         self.loaded_data = pd.DataFrame()
         self.data_to_calculate = pd.DataFrame()
 
 
     def load_data_from_file(self, path):
         self.loaded_data = pd.read_csv(path)
-        self.data_to_calculate = self.loaded_data.iloc[:, 4:]
+        self.data_to_calculate = self.loaded_data.iloc[:, 4:] # dla dataset2 jest git dla dataset3 [:, 4:-1]
         criterions_list = list(self.data_to_calculate.columns)
         self.criterions = pd.DataFrame(list(zip(criterions_list, self.criterions_param_list)), columns=['Nazwa', 'Kierunek'])
 
@@ -312,6 +314,14 @@ class slipperyZbiorniczek:
         # loc_max_min = self.get_max_min(data_rest)
         # print(loc_max_min)
         # print('\n---KONIEC ITERACJI---\n')
+    
+    def scoring_do_dataframe_ranking(self, scoring):
+        self.loaded_data["Scoring"] = scoring
+        df = masnyZbiornik.loaded_data
+        df = df.groupby(['Nazwa stacji'])["Scoring"].mean()
+        df = df.reset_index()
+        df.sort_values("Scoring", ascending=False, inplace=True)
+        return df
 
     def run_topsis(self):
         topsis = TOPSIS(self.data_to_calculate, self.criterions_param_list, self.weights)
@@ -322,23 +332,35 @@ class slipperyZbiorniczek:
             ranking_list.append(el[0])
         print(" ")
         print(ranking_list)
-        return topsis_ranking[1]        
+        return topsis_ranking[1]
+
+    def run_uta_star(self):
+        intervals = np.random.randint(2, 5, self.data_to_calculate.shape[1])
+        weights = np.array(self.weights)
+
+        cryt_name = []
+        for i in range(len(self.criterions_param_list)):
+            cryt_name.append(f'Kryterium {i+1}')
+        cryt_list = deepcopy(self.criterions)
+        cryt_list['Nazwa'] = cryt_name
+
+        data_to_cal = deepcopy(self.data_to_calculate)
+        data_to_cal.columns = cryt_name
+
+        utaStar = UTA_STAR(cryt_list, data_to_cal, intervals, weights)
+        utaRanking = utaStar.run()
+        return utaRanking
         
 
 if __name__ == "__main__":
     masnyZbiornik = slipperyZbiorniczek()
-    masnyZbiornik.load_data_from_file('dataset1.csv')
+    masnyZbiornik.load_data_from_file('dataset2.csv')
     print(masnyZbiornik.criterions.to_string())
+    # print(masnyZbiornik.data_to_calculate.to_string())
     print(" ")
-    ci_list = masnyZbiornik.run_topsis()
-    masnyZbiornik.loaded_data["Scoring"] = ci_list
-    df = masnyZbiornik.loaded_data
-    df = df.groupby(['Nazwa stacji'])["Scoring"].mean()
-    df = df.reset_index()
-    print(df.to_string())
-    df.sort_values("Scoring", ascending=False, inplace=True)
-    print("Output:", df.to_string())   
-    print(" ")
-    print(masnyZbiornik.criterions.to_string())
+    #scoring_list = masnyZbiornik.run_uta_star()
+    scoring_list = masnyZbiornik.run_topsis()
+    df = masnyZbiornik.scoring_do_dataframe_ranking(scoring_list)
+    print("Output:", df.to_string())
     # masnyZbiornik.undominated_sets() 
     

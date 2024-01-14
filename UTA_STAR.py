@@ -6,6 +6,9 @@ from beautifultable import BeautifulTable
 class UTA_STAR:
     def __init__(self, criterions, generated_data, intervals, weights) -> None:
         self.criterions = criterions # pd.DataFrame(columns=['Nazwa', 'Kierunek'])
+        numOfCriterions = self.criterions.shape[0]
+        self.criterionsList = ['Max' if self.criterions.loc[i].Kierunek == 1 else 'Min' for i in range(numOfCriterions)]
+        self.criterions["Kierunek"] = self.criterionsList
         self.generated_data = generated_data # pd.DataFrame(columns=['Kryterium 1', 'Kryterium 2'])
         self.intervals_per_criterion = np.array(intervals) # np.array([1, 1])
         self.weights = np.array(weights) # np.array([1, 1])
@@ -84,20 +87,21 @@ class UTA_STAR:
         return np.array(all_scorings)
     
     def create_ranking(self, all_scorings):
-        raking_per_criterion = list(zip(np.arange(1, df_data.shape[0] + 1), np.sum(all_scorings.T, axis=1)))
-        return sorted(raking_per_criterion, key=itemgetter(1), reverse=True)
+        raking_per_criterion = list(zip(np.arange(1, self.generated_data.shape[0] + 1), np.sum(all_scorings.T, axis=1)))
+        sorted_ranking = sorted(raking_per_criterion, key=itemgetter(1), reverse=True)
+        return np.sum(all_scorings.T, axis=1)
 
     def run(self):
         intermediate_points_mat = self.determine_intermediate_points()
         utility_function_values_mat = self.calculate_utility_function_values()
         utility_funs_coeff_mat = self.determine_gradient_and_intercept_for_utility_functions(intermediate_points_mat, utility_function_values_mat)
         all_scorings = self.calculate_scoring(intermediate_points_mat, utility_funs_coeff_mat)
-        rankings = self.create_ranking(all_scorings)
+        scoring = self.create_ranking(all_scorings)
 
-        table = BeautifulTable()
-        table.columns.header = ["ranking", "alternatywa", "scoring"]
+        # table = BeautifulTable()
+        # table.columns.header = ["ranking", "alternatywa", "scoring"]
 
-        for i in range(len(rankings)):
-            table.rows.append([i + 1, rankings[i][0], rankings[i][1]])
-        print(table)
-        return rankings
+        # for i in range(len(rankings)):
+            # table.rows.append([i + 1, rankings[i][0], rankings[i][1]])
+        # print(table)
+        return scoring

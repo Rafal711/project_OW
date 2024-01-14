@@ -19,7 +19,7 @@ class TOPSIS:
 
     def normalize(self):
         self.matrix = self.matrix / ((self.matrix ** 2).sum(axis=0)) ** (1/2)
-        return self.matrix
+        # return self.matrix
 
     def applyMaxim(self):
         # one when maximalize
@@ -29,10 +29,10 @@ class TOPSIS:
         self.matrix = self.matrix * v
         self.matrix = self.matrix + self.criterionsList
         # matrix a b c -> a 1-b 1-c
-        return self.matrix
+        # return self.matrix
 
     def applyWeights(self):
-        return self.matrix * self.weights
+        self.matrix = self.matrix * self.weights
     
     def getMin(self):
         return self.matrix.min(0)
@@ -73,9 +73,9 @@ class TOPSIS:
 
     def topsis(self, generated_data, criterions, weights):
         # self.criterionsDfToList()
-        matrix = self.normalize()
-        matrix = self.applyWeights()
-        matrix = self.applyMaxim()
+        self.normalize()
+        self.applyWeights()
+        self.applyMaxim()
         min_ = self.getMin()
         max_ = self.getMax()
         did = self.getDid(max_)
