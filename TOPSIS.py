@@ -62,15 +62,6 @@ class TOPSIS:
     def printRank(self, rank):
         print(*rank, sep='\n')
 
-    def get_max_min(self, struct):
-        min_ = [inf] * 3
-        max_ = [-inf] * 3
-        for val in struct.values():
-            for i in (0, 1, 2):
-                min_[i] = min(min_[i], val[i])
-                max_[i] = max(max_[i], val[i])
-        return {"MIN": min_, "MAX": max_}
-
     def topsis(self, generated_data, criterions, weights):
         # self.criterionsDfToList()
         self.normalize()

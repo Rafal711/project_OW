@@ -5,6 +5,7 @@ from copy import deepcopy
 from math import inf
 from TOPSIS import TOPSIS
 from UTA_STAR import UTA_STAR
+from FUZZY_TOPSIS import FUZZY_TOPSIS
 
 
 class slipperyZbiorniczek:
@@ -143,17 +144,29 @@ class slipperyZbiorniczek:
         utaRanking = utaStar.run()
         return utaRanking
         
+    def run_fuzzy_topsis(self):
+        data_to_cal = self.undominated_sets()
+        fuz_topsis = FUZZY_TOPSIS(data_to_cal, self.criterions_param_list, self.weights)
+        fuz_topsis_ranking = fuz_topsis.run()
+        print(fuz_topsis_ranking[0], len(fuz_topsis_ranking[0]))
+        ranking_list = []
+        for el in fuz_topsis_ranking:
+            ranking_list.append(el[0])
+        print(" ")
+        print(ranking_list)
+        return fuz_topsis_ranking[1]
 
 if __name__ == "__main__":
     masnyZbiornik = slipperyZbiorniczek()
     masnyZbiornik.load_data_from_file('dataset1.csv')
-    masnyZbiornik.undominated_sets()
+    # masnyZbiornik.undominated_sets()
     # print(masnyZbiornik.criterions.to_string())
     # # print(masnyZbiornik.data_to_calculate.to_string())
     # print(" ")
     # scoring_list = masnyZbiornik.run_uta_star()
     # scoring_list = masnyZbiornik.run_topsis()
-    # df = masnyZbiornik.scoring_do_dataframe_ranking(scoring_list)
-    # print("Output:", df.to_string())
+    scoring_list = masnyZbiornik.run_fuzzy_topsis()
+    df = masnyZbiornik.scoring_do_dataframe_ranking(scoring_list)
+    print("Output:", df.to_string())
     # # masnyZbiornik.undominated_sets() 
     
