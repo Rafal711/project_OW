@@ -1,28 +1,37 @@
 import pandas as pd
 from flask import Flask, jsonify, render_template, request
-import numpy as np
-from tkinter import filedialog, Tk
-
-import time
+from zbiorniczek import slipperyZbiorniczek
 
 app = Flask(__name__)
-def run_optimisation(method="TOPSIS"):
-    if (method == "TOPSIS"):
-        # df = get_topsis_results()
-        df = pd.DataFrame()
-    
-    return df
+slippery = slipperyZbiorniczek()
 
-@app.route("/results", methods=("POST", "GET"))
-def results():
-    df = run_optimisation()
-    return render_template("results.html", table_html=[df.to_html(classes='data', header='true', index=False)])
+def run_optimisation(method="Topsis"):
+    df = slippery.run_algorithm(method)
+    df_ = df.reset_index(drop=True)
+    return df_
+
+
+@app.route("/results/UTA", methods=("POST", "GET"))
+def results_UTA():
+    df = run_optimisation("UTA")
+    return render_template("results.html", table_html=[df.to_html(classes='data', header='true')], method="UTA")
+
+@app.route("/results/topsis", methods=("POST", "GET"))
+def results_topsis():
+    df = run_optimisation("Topsis")
+    return render_template("results.html", table_html=[df.to_html(classes='data', header='true')], method="Topsis")
+
+@app.route("/results/fuzzy", methods=("POST", "GET"))
+def results_fuzzy():
+    df = run_optimisation("Fuzzy")
+    return render_template("results.html", table_html=[df.to_html(classes='data', header='true')], method="Fuzzy Topsis")
 
 @app.route("/show_data", methods=("POST", "GET"))
 def show_data():
-    f = request.files['file']
+    data_path = request.files['file'].filename
     try:
-        df = pd.read_csv(f)
+        slippery.load_data_from_file(data_path)
+        df = slippery.loaded_data.copy()
         df.columns.values[0] = 'ID'
     except:
         df = pd.DataFrame()

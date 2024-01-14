@@ -19,7 +19,7 @@ class slipperyZbiorniczek:
         self.fuzzy_rest = None
 
 
-    def load_data_from_file(self, path, idx_col):
+    def load_data_from_file(self, path, idx_col=4):
         self.loaded_data = pd.read_csv(path)
         if path == "dataset3.csv":
             self.data_to_calculate = self.loaded_data.iloc[:, idx_col:-4] # dla dataset2 jest git dla dataset3 [:, 4:-4]
@@ -27,6 +27,19 @@ class slipperyZbiorniczek:
             self.data_to_calculate = self.loaded_data.iloc[:, idx_col:]
         criterions_list = list(self.data_to_calculate.columns)
         self.criterions = pd.DataFrame(list(zip(criterions_list, self.criterions_param_list)), columns=['Nazwa', 'Kierunek'])
+
+        if path == "dataset1.csv":
+            self.criterions_param_list = [1, 1, 1, 0, 1, 0]
+            self.weights = [1, 1, 1, 1, 1, 1]
+        elif path == "dataset2.csv":
+            self.criterions_param_list = [1, 1, 1, 0, 0, 0]
+            self.weights = [1, 1, 1, 1, 1, 0]
+        elif path == "dataset3.csv":
+            self.criterions_param_list = [1, 1, 1, 0, 1, 0]
+            self.weights = [1, 1, 1, 1, 0, 1]
+        else:
+            self.criterions_param_list = [1, 1, 1, 0, 1, 0]
+            self.weights = [1, 1, 1, 1, 1, 1]
 
 
     def compare(self, p1, p2):
@@ -120,7 +133,7 @@ class slipperyZbiorniczek:
             #print(df.to_string())
         else:
             self.loaded_data["Scoring"] = scoring
-            df = masnyZbiornik.loaded_data
+            df = self.loaded_data
         df = df.groupby(['Nazwa stacji'])["Scoring"].mean()
         df = df.reset_index()
         df.sort_values("Scoring", ascending=False, inplace=True)
@@ -191,20 +204,7 @@ class slipperyZbiorniczek:
         df = self.scoring_do_dataframe_ranking(fuzzy_input[0], df_)
         return df
     
-    def run_algorithm(self, name, data_path):
-
-        if data_path == "dataset1.csv":
-            self.criterions_param_list = [1, 1, 1, 0, 1, 0]
-            self.weights = [1, 1, 1, 1, 1, 1]
-            self.load_data_from_file(data_path, 4)
-        elif data_path == "dataset2.csv":
-            self.criterions_param_list = [1, 1, 1, 0, 0, 0]
-            self.weights = [1, 1, 1, 1, 1, 0]
-            self.load_data_from_file(data_path, 4)
-        elif data_path == "dataset3.csv":
-            self.criterions_param_list = [1, 1, 1, 0, 1, 0]
-            self.weights = [1, 1, 1, 1, 0, 1]
-            self.load_data_from_file(data_path, 4)
+    def run_algorithm(self, name):
 
         if name == "Fuzzy":
            scoring_list = self.run_fuzzy_topsis()
@@ -212,18 +212,19 @@ class slipperyZbiorniczek:
            df_out = self.fuzzy_output(scoring_list)
            return df_out
         elif name == "Topsis":
-            scoring_list = masnyZbiornik.run_topsis()
+            scoring_list = self.run_topsis()
             df_out = self.scoring_do_dataframe_ranking(scoring_list)
             return df_out
 
         else:
-            scoring_list = masnyZbiornik.run_uta_star()
+            scoring_list = self.run_uta_star()
             df_out = self.scoring_do_dataframe_ranking(scoring_list)
             return df_out 
 
 
 if __name__ == "__main__":
     masnyZbiornik = slipperyZbiorniczek()
-    df = masnyZbiornik.run_algorithm("Fuzzy", "dataset1.csv")
+    masnyZbiornik.load_data_from_file("dataset1.csv")
+    df = masnyZbiornik.run_algorithm("Topsis")
     print("Output:", df.to_string())
     
