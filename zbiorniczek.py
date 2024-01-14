@@ -12,15 +12,18 @@ class slipperyZbiorniczek:
     def __init__(self): 
         self.criterions = None # żeby odwrócić to odjąć -1 i pomnożyć przez -1
         self.criterions_param_list = [1, 1, 1, 0, 0, 0] # dla dataset2: [1, 1, 1, 0, 0, 0], dataset1: [1, 1, 1, 0, 1, 0]
-        self.weights = [1] * len(self.criterions_param_list)
+        # self.weights = [1] * len(self.criterions_param_list)
         self.weights = [1, 1, 1, 1, 1, 0] # dla dataset2: [1, 1, 1, 1, 1, 0], dataset1: [1, 1, 1, 1, 0, 1]
         self.loaded_data = pd.DataFrame()
         self.data_to_calculate = pd.DataFrame()
 
 
-    def load_data_from_file(self, path):
+    def load_data_from_file(self, path, idx_col):
         self.loaded_data = pd.read_csv(path)
-        self.data_to_calculate = self.loaded_data.iloc[:, 4:] # dla dataset2 jest git dla dataset3 [:, 4:-1]
+        if path == "dataset3.csv":
+            self.data_to_calculate = self.loaded_data.iloc[:, idx_col:-4] # dla dataset2 jest git dla dataset3 [:, 4:-4]
+        else:
+            self.data_to_calculate = self.loaded_data.iloc[:, idx_col:]
         criterions_list = list(self.data_to_calculate.columns)
         self.criterions = pd.DataFrame(list(zip(criterions_list, self.criterions_param_list)), columns=['Nazwa', 'Kierunek'])
 
@@ -79,12 +82,12 @@ class slipperyZbiorniczek:
     def undominated_sets(self):
         data_list = self.data_to_calculate.to_numpy(copy=True).tolist()
         undominated_A0, domi, not_comparable, compare_counter = self.naive_owd(data_list)
-        print(undominated_A0)
-        print(len(undominated_A0))
+        #print(undominated_A0)
+        #print(len(undominated_A0))
         self.criterions['Kierunek'] = -(self.criterions['Kierunek'] - 1)
         undominated_A3, domi, not_comparable, compare_counter  = self.naive_owd(data_list)
-        print(undominated_A3)
-        print(len(undominated_A3))
+        #print(undominated_A3)
+        #print(len(undominated_A3))
         rest = [el for el in data_list if el not in undominated_A0.tolist()]
         rest = [el for el in rest if el not in undominated_A3.tolist()]
         # rest = [el for el in rest if el not in undominated_A1]
@@ -93,24 +96,29 @@ class slipperyZbiorniczek:
 
         self.criterions['Kierunek'] = -(self.criterions['Kierunek'] - 1)
         undominated_A1, domi, not_comparable, compare_counter  = self.naive_owd(rest)
-        print(undominated_A1)
-        print(len(undominated_A1))
+        #print(undominated_A1)
+        #print(len(undominated_A1))
         self.criterions['Kierunek'] = -(self.criterions['Kierunek'] - 1)
         undominated_A2, domi, not_comparable, compare_counter = self.naive_owd(rest)
-        print(undominated_A2)
-        print(len(undominated_A2))
+        #print(undominated_A2)
+        #print(len(undominated_A2))
         self.criterions['Kierunek'] = -(self.criterions['Kierunek'] - 1)
 
         rest = [el for el in rest if el not in undominated_A1.tolist()]
         rest = [el for el in rest if el not in undominated_A2.tolist()]
 
-        print("Rest2: ", rest, len(rest))
+        #print("Rest2: ", rest, len(rest))
 
         return undominated_A0, undominated_A1, rest
     
-    def scoring_do_dataframe_ranking(self, scoring):
-        self.loaded_data["Scoring"] = scoring
-        df = masnyZbiornik.loaded_data
+    def scoring_do_dataframe_ranking(self, scoring, data = None):
+        if np.any(data):
+            data["Scoring"] = scoring
+            df = data
+            #print(df.to_string())
+        else:
+            self.loaded_data["Scoring"] = scoring
+            df = masnyZbiornik.loaded_data
         df = df.groupby(['Nazwa stacji'])["Scoring"].mean()
         df = df.reset_index()
         df.sort_values("Scoring", ascending=False, inplace=True)
@@ -119,12 +127,12 @@ class slipperyZbiorniczek:
     def run_topsis(self):
         topsis = TOPSIS(self.data_to_calculate, self.criterions_param_list, self.weights)
         topsis_ranking = topsis.run()
-        print(topsis_ranking[0], len(topsis_ranking[0]))
+        #print(topsis_ranking[0], len(topsis_ranking[0]))
         ranking_list = []
         for el in topsis_ranking:
             ranking_list.append(el[0])
-        print(" ")
-        print(ranking_list)
+        #print(" ")
+        #print(ranking_list)
         return topsis_ranking[1]
 
     def run_uta_star(self):
@@ -148,25 +156,66 @@ class slipperyZbiorniczek:
         data_to_cal = self.undominated_sets()
         fuz_topsis = FUZZY_TOPSIS(data_to_cal, self.criterions_param_list, self.weights)
         fuz_topsis_ranking = fuz_topsis.run()
-        print(fuz_topsis_ranking[0], len(fuz_topsis_ranking[0]))
+        #print(fuz_topsis_ranking[0], len(fuz_topsis_ranking[0]))
         ranking_list = []
         for el in fuz_topsis_ranking:
             ranking_list.append(el[0])
-        print(" ")
-        print(ranking_list)
-        return fuz_topsis_ranking[1]
+        #print(" ")
+        #print(ranking_list)
+        return fuz_topsis_ranking[1], data_to_cal[2]
+    
+    def fuzzy_output(self, fuzzy_input):
+        columnns_to_search = self.data_to_calculate.columns
+
+        matrix_to_search = self.loaded_data[columnns_to_search] # 2d array
+
+        values_to_find = np.array(fuzzy_input[1])
+
+        id = np.argwhere(np.isin(matrix_to_search, values_to_find).all(axis=1)) 
+        #print("id:", id)
+
+        df_= self.loaded_data.iloc[id.flatten()]
+        #print(df_.to_string())
+        df_ = df_.drop(df_.columns[0], axis=1)
+        df_ = df_.reset_index()
+        #print(df_.to_string())
+
+        df = self.scoring_do_dataframe_ranking(fuzzy_input[0], df_)
+        return df
+    
+    def run_algorithm(self, name, data_path):
+
+        if data_path == "dataset1.csv":
+            self.criterions_param_list = [1, 1, 1, 0, 1, 0]
+            self.weights = [1, 1, 1, 1, 1, 1]
+            self.load_data_from_file(data_path, 4)
+        elif data_path == "dataset2.csv":
+            self.criterions_param_list = [1, 1, 1, 0, 0, 0]
+            self.weights = [1, 1, 1, 1, 1, 0]
+            self.load_data_from_file(data_path, 4)
+        elif data_path == "dataset3.csv":
+            self.criterions_param_list = [1, 1, 1, 0, 1, 0]
+            self.weights = [1, 1, 1, 1, 0, 1]
+            self.load_data_from_file(data_path, 4)
+
+        if name == "Fuzzy":
+           scoring_list = self.run_fuzzy_topsis()
+           print("SCORINGS LENGTH: ", len(scoring_list[0]), len(scoring_list[1]))
+           df_out = self.fuzzy_output(scoring_list)
+           return df_out
+        elif name == "Topsis":
+            scoring_list = masnyZbiornik.run_topsis()
+            df_out = self.scoring_do_dataframe_ranking(scoring_list)
+            return df_out
+
+        else:
+            scoring_list = masnyZbiornik.run_uta_star()
+            df_out = self.scoring_do_dataframe_ranking(scoring_list)
+            return df_out 
+
 
 if __name__ == "__main__":
     masnyZbiornik = slipperyZbiorniczek()
-    masnyZbiornik.load_data_from_file('dataset1.csv')
-    # masnyZbiornik.undominated_sets()
-    # print(masnyZbiornik.criterions.to_string())
-    # # print(masnyZbiornik.data_to_calculate.to_string())
-    # print(" ")
-    # scoring_list = masnyZbiornik.run_uta_star()
-    # scoring_list = masnyZbiornik.run_topsis()
-    scoring_list = masnyZbiornik.run_fuzzy_topsis()
-    df = masnyZbiornik.scoring_do_dataframe_ranking(scoring_list)
+    df = masnyZbiornik.run_algorithm("Fuzzy", "dataset2.csv")
     print("Output:", df.to_string())
-    # # masnyZbiornik.undominated_sets() 
     
