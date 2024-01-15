@@ -40,18 +40,18 @@ class TOPSIS:
         min = [] 
         for count, el in enumerate(self.criterionsList):
             if el:
-                min.append(np.min(self.A0[:, count]))
+                min.append(np.min(self.matrix[:, count]))
             else:
-                min.append(np.max(self.A0[:, count]))
+                min.append(np.max(self.matrix[:, count]))
         return np.array(min)
 
     def getMax(self):
         max = [] 
         for count, el in enumerate(self.criterionsList):
             if el:
-                max.append(np.max(self.A3[:, count]))
+                max.append(np.max(self.matrix[:, count]))
             else:
-                max.append(np.min(self.A3[:, count]))
+                max.append(np.min(self.matrix[:, count]))
         return np.array(max)
 
     def getDig(self, matMin):
