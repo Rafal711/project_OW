@@ -28,13 +28,17 @@ def results_fuzzy():
 
 @app.route("/show_data", methods=("POST", "GET"))
 def show_data():
-    data_path = request.files['file'].filename
-    try:
-        slippery.load_data_from_file(data_path)
+    if request.method == "POST":
+        data_path = request.files['file'].filename
+        try:
+            slippery.load_data_from_file(data_path)
+            df = slippery.loaded_data.copy()
+            df.columns.values[0] = 'ID'
+        except:
+            df = pd.DataFrame()
+    else:
         df = slippery.loaded_data.copy()
         df.columns.values[0] = 'ID'
-    except:
-        df = pd.DataFrame()
     return render_template("show_data.html", table_html=[df.to_html(classes='data', header='true', index=False)])
 
 @app.route("/load_data", methods=("POST", "GET"))
