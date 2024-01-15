@@ -7,11 +7,11 @@ from math import inf
 class TOPSIS:
     def __init__(self, generated_data, criterions_list, weights) -> None:
         self.generated_data = generated_data
-        self.A0 = self.generated_data[1]
-        self.A3 = self.generated_data[2]
+        # self.A0 = self.generated_data[1]
+        # self.A3 = self.generated_data[2]
         # self.criterions = criterions
         self.weights = np.array(weights)
-        self.matrix = generated_data[0].to_numpy()
+        self.matrix = generated_data.to_numpy()
         self.criterionsList = criterions_list
 
     # def criterionsDfToList(self):
