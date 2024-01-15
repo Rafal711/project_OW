@@ -124,7 +124,7 @@ class slipperyZbiorniczek:
 
         #print("Rest2: ", rest, len(rest))
 
-        return undominated_A0, undominated_A1, rest
+        return undominated_A1, undominated_A2, rest
     
     def scoring_do_dataframe_ranking(self, scoring, data = None):
         if np.any(data):
@@ -140,7 +140,15 @@ class slipperyZbiorniczek:
         return df
 
     def run_topsis(self):
-        topsis = TOPSIS(self.data_to_calculate, self.criterions_param_list, self.weights)
+
+        data_list = self.data_to_calculate.to_numpy(copy=True).tolist()
+        undominated_A0, domi, not_comparable, compare_counter = self.naive_owd(data_list)
+        self.criterions['Kierunek'] = -(self.criterions['Kierunek'] - 1)
+        undominated_A3, domi, not_comparable, compare_counter  = self.naive_owd(data_list)
+        rest = [el for el in data_list if el not in undominated_A0.tolist()]
+        rest = [el for el in rest if el not in undominated_A3.tolist()]
+
+        topsis = TOPSIS((self.data_to_calculate, undominated_A0, undominated_A3), self.criterions_param_list, self.weights)
         topsis_ranking = topsis.run()
         #print(topsis_ranking[0], len(topsis_ranking[0]))
         ranking_list = []

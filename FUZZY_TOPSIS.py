@@ -7,8 +7,8 @@ from math import inf
 class FUZZY_TOPSIS:
     def __init__(self, generated_data, criterions, weights, fuzzy_rest) -> None:
         self.generated_data = generated_data
-        self.A0 = self.generated_data[0]
-        self.A1 = self.generated_data[1]
+        self.A1 = self.generated_data[0]
+        self.A2 = self.generated_data[1]
         #self.criterions = criterions
         self.weights = np.array(weights)
         self.matrix = np.array(self.generated_data[2])
@@ -38,10 +38,22 @@ class FUZZY_TOPSIS:
         return self.matrix * self.weights
     
     def getMin(self):
-        return self.matrix.min(0)
+        min = [] 
+        for count, el in enumerate(self.criterionsList):
+            if el:
+                min.append(np.min(self.A1[:, count]))
+            else:
+                min.append(np.max(self.A1[:, count]))
+        return np.array(min)
 
     def getMax(self):
-        return self.matrix.max(0)
+        max = [] 
+        for count, el in enumerate(self.criterionsList):
+            if el:
+                max.append(np.max(self.A2[:, count]))
+            else:
+                max.append(np.min(self.A2[:, count]))
+        return np.array(max)
 
     def getDig(self, matMin):
         matrix = deepcopy(self.matrix)
