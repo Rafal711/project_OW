@@ -14,7 +14,7 @@ def run_optimisation(method="Topsis"):
 @app.route("/results/UTA", methods=("POST", "GET"))
 def results_UTA():
     df = run_optimisation("UTA")
-    return render_template("results.html", table_html=[df.to_html(classes='data', header='true')], method="UTA")
+    return render_template("results.html", table_html=[df.to_html(classes='data', header='true')], method="UTASTAR")
 
 @app.route("/results/topsis", methods=("POST", "GET"))
 def results_topsis():
