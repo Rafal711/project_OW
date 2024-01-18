@@ -17,7 +17,7 @@ class UTA_STAR:
         directionToMinOrMax = {
             "Min": np.min,
             "Max": np.max
-        }
+        } 
         num_of_criterions = self.generated_data.shape[1]
         return [directionToMinOrMax[self.criterions.loc[i].Kierunek](self.generated_data[f"Kryterium {i}"].to_numpy()) for i in range(num_of_criterions)]
     

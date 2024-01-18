@@ -11,9 +11,9 @@ from FUZZY_TOPSIS import FUZZY_TOPSIS
 class slipperyZbiorniczek:
     def __init__(self): 
         self.criterions = None # żeby odwrócić to odjąć -1 i pomnożyć przez -1
-        self.criterions_param_list = [1, 1, 1, 0, 0, 0] # dla dataset2: [1, 1, 1, 0, 0, 0], dataset1: [1, 1, 1, 0, 1, 0]
+        self.criterions_param_list = []# [1, 1, 1, 0, 0, 0] 
         # self.weights = [1] * len(self.criterions_param_list)
-        self.weights = [1, 1, 1, 1, 1, 0] # dla dataset2: [1, 1, 1, 1, 1, 0], dataset1: [1, 1, 1, 1, 0, 1]
+        self.weights = [] #[1, 1, 1, 1, 1, 0] 
         self.loaded_data = pd.DataFrame()
         self.data_to_calculate = pd.DataFrame()
         self.fuzzy_rest = None
@@ -21,16 +21,10 @@ class slipperyZbiorniczek:
 
     def load_data_from_file(self, path, idx_col=4):
         self.loaded_data = pd.read_csv(path)
-        if path == "dataset3.csv":
-            self.data_to_calculate = self.loaded_data.iloc[:, idx_col:-4] # dla dataset2 jest git dla dataset3 [:, 4:-4]
-        else:
-            self.data_to_calculate = self.loaded_data.iloc[:, idx_col:]
-        criterions_list = list(self.data_to_calculate.columns)
-        self.criterions = pd.DataFrame(list(zip(criterions_list, self.criterions_param_list)), columns=['Nazwa', 'Kierunek'])
 
         if path == "dataset1.csv":
             self.criterions_param_list = [1, 1, 1, 0, 1, 0]
-            self.weights = [1, 1, 1, 1, 1, 1]
+            self.weights = [0.45, 0.1, 0.01, 0.3, 0, 0.14]
         elif path == "dataset2.csv":
             self.criterions_param_list = [1, 1, 1, 0, 0, 0]
             self.weights = [1, 1, 1, 1, 1, 0]
@@ -40,6 +34,13 @@ class slipperyZbiorniczek:
         else:
             self.criterions_param_list = [1, 1, 1, 0, 1, 0]
             self.weights = [1, 1, 1, 1, 1, 1]
+
+        if path == "dataset3.csv":
+            self.data_to_calculate = self.loaded_data.iloc[:, idx_col:-4] # dla dataset2 jest git dla dataset3 [:, 4:-4]
+        else:
+            self.data_to_calculate = self.loaded_data.iloc[:, idx_col:]
+        criterions_list = list(self.data_to_calculate.columns)
+        self.criterions = pd.DataFrame(list(zip(criterions_list, self.criterions_param_list)), columns=['Nazwa', 'Kierunek'])
 
 
     def compare(self, p1, p2):
