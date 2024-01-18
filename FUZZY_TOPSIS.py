@@ -27,7 +27,7 @@ class FUZZY_TOPSIS:
     def applyMaxim(self):
         # one when maximalize
         # maxims 0 0 1
-        v = [1 if x == 0 else -1 for x in self.criterionsList]
+        v = [-1 if x == 0 else 1 for x in self.criterionsList]
         # v2 1 1 -1
         self.matrix = self.matrix * v
         self.matrix = self.matrix + self.criterionsList
@@ -41,18 +41,18 @@ class FUZZY_TOPSIS:
         min = [] 
         for count, el in enumerate(self.criterionsList):
             if el:
-                min.append(np.min(self.A1[:, count]))
+                min.append(np.min(self.A2[:, count]))
             else:
-                min.append(np.max(self.A1[:, count]))
+                min.append(np.max(self.A2[:, count]))
         return np.array(min)
 
     def getMax(self):
         max = [] 
         for count, el in enumerate(self.criterionsList):
             if el:
-                max.append(np.max(self.A2[:, count]))
+                max.append(np.max(self.A1[:, count]))
             else:
-                max.append(np.min(self.A2[:, count]))
+                max.append(np.min(self.A1[:, count]))
         return np.array(max)
 
     def getDig(self, matMin):

@@ -26,7 +26,7 @@ class TOPSIS:
     def applyMaxim(self):
         # one when maximalize
         # maxims 0 0 1
-        v = [1 if x == 0 else -1 for x in self.criterionsList]
+        v = [-1 if x == 0 else 1 for x in self.criterionsList]
         # v2 1 1 -1
         self.matrix = self.matrix * v
         self.matrix = self.matrix + self.criterionsList
