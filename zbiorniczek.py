@@ -24,16 +24,16 @@ class slipperyZbiorniczek:
 
         if path == "dataset1.csv":
             self.criterions_param_list = [1, 1, 1, 0, 1, 0]
-            self.weights = [0.45, 0.1, 0.01, 0.3, 0, 0.14]
+            self.weights = [0.45, 0.1, 0.01, 0.3, 0.02, 0.12]
         elif path == "dataset2.csv":
             self.criterions_param_list = [1, 1, 1, 0, 0, 0]
-            self.weights = [1, 1, 1, 1, 1, 0]
+            self.weights = [0.45, 0.1, 0.01, 0.3, 0.14, 0]
         elif path == "dataset3.csv":
             self.criterions_param_list = [1, 1, 1, 0, 1, 0]
-            self.weights = [1, 1, 1, 1, 0, 1]
+            self.weights = [0.45, 0.1, 0.01, 0.3, 0.03, 0.11]
         else:
             self.criterions_param_list = [1, 1, 1, 0, 1, 0]
-            self.weights = [1, 1, 1, 1, 1, 1]
+            self.weights = [0.5, 0.1, 0.1, 0.1, 0.1, 0.1]
 
         if path == "dataset3.csv":
             self.data_to_calculate = self.loaded_data.iloc[:, idx_col:-4] # dla dataset2 jest git dla dataset3 [:, 4:-4]
